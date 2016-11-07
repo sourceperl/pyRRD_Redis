@@ -11,7 +11,7 @@ line_chart = pygal.Line()
 line_chart.title = 'Data evolution (RAW value)'
 x = []
 l1 = []
-for rrv in data1.get_rrd_val(size=100):
+for rrv in data1.get(size=100):
     x.append(rrv.time_str)
     l1.append(rrv.value)
 x.reverse()

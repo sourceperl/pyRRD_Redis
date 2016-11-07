@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import redis
+from redis import StrictRedis, WatchError
 import struct
 import time
 from enum import Enum
@@ -78,7 +78,7 @@ class RRD_redis(object):
         self.add_func = add_func
         # private
         self._c_val = []
-        self._r = client if client else redis.StrictRedis()
+        self._r = client if client else StrictRedis()
 
     def add(self, value, at_time=None):
         """
@@ -89,10 +89,32 @@ class RRD_redis(object):
         :param at_time: timestamp for value (default is time.time())
         :type at_time: float
         """
-        pipe = self._r.pipeline()
-        pipe.lpush(self.name, RRD_value(value=value, timestamp=at_time).dump())
-        pipe.ltrim(self.name, 0, self.size - 1)
-        pipe.execute()
+        with self._r.pipeline() as pipe:
+            while True:
+                try:
+                    # watch no change occur on this RRD during add() update
+                    pipe.watch(self.name)
+                    # if at_time is not defined, just insert new record and remove older record
+                    if at_time is None or len(self) == 0:
+                        # insert at first position
+                        pipe.lpush(self.name, RRD_value(value=value, timestamp=at_time).dump())
+                    else:
+                        # try to insert new record before the closest record
+                        for rrv in self.get():
+                            if at_time > rrv.timestamp:
+                                pipe.linsert(self.name, 'BEFORE', rrv.dump(),
+                                             RRD_value(value=value, timestamp=at_time).dump())
+                                break
+                        else:
+                            pipe.rpush(self.name, RRD_value(value=value, timestamp=at_time).dump())
+                    # ensure DB size keep <= max size
+                    pipe.ltrim(self.name, 0, self.size - 1)
+                    pipe.execute()
+                    # exit, update is atomic
+                    break
+                except WatchError:
+                    # if RRD change during update just redo it
+                    continue
 
     def add_step(self, value):
         """
@@ -102,7 +124,7 @@ class RRD_redis(object):
         :type value: float
         """
         # read last insert time
-        last_rrv = self.get_rrd_val(start=0, size=1)
+        last_rrv = self.get(start=0, size=1)
         if last_rrv:
             ins_time = last_rrv[0].timestamp
         else:
@@ -122,7 +144,7 @@ class RRD_redis(object):
                 self.add(value)
             self._c_val.clear()
 
-    def get_rrd_val(self, start=0, size=0):
+    def get(self, start=0, size=0):
         """
         Return a list of RRD_value
 
@@ -141,3 +163,15 @@ class RRD_redis(object):
         for s in self._r.lrange(self.name, start, start + size - 1):
             ret_l.append(RRD_value(from_str=s))
         return ret_l
+
+    def clear(self):
+        """
+        Remove all record from the RRD
+        """
+        self._r.delete(self.name)
+
+    def __len__(self):
+        """
+        Retrieve current size of the RRD
+        """
+        return self._r.llen(self.name)
