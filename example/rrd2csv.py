@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import random
-import time
 from pyRRD_Redis import RRD_redis, StepAddFunc
 
 # init RRD db
