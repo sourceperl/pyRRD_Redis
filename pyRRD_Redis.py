@@ -157,7 +157,7 @@ class RRD_redis(object):
         """
         # default size is all RRD
         if size == 0:
-            size = self.size
+            size = self._r.llen(self.name)
         # format and return array of RRD_value
         ret_l = []
         for s in self._r.lrange(self.name, start, start + size - 1):
