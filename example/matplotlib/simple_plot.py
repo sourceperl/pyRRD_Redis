@@ -6,11 +6,14 @@ import matplotlib.pyplot as plt
 from pyRRD_Redis import RRD_redis
 
 # init RRD db
-data1 = RRD_redis('rrd:test1')
+rrd = RRD_redis('rrd:test1')
 
 # make up some data
-x = [datetime.datetime.fromtimestamp(rrv.timestamp) for rrv in data1.get()]
-y = [rrv.value for rrv in data1.get()]
+x = []
+y = []
+for rrv in rrd.get(size=10000):
+    x.append(datetime.datetime.fromtimestamp(rrv.timestamp))
+    y.append(rrv.value)
 
 # plot
 plt.plot(x, y)
