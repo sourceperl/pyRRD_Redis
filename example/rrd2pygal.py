@@ -4,8 +4,11 @@
 import pygal
 from pyRRD_Redis import RRD_redis
 
+# some const
+TAG_NAME = 'test1'
+
 # init RRD db
-data1 = RRD_redis('rrd:test1')
+data1 = RRD_redis('rrd:' + TAG_NAME)
 # build a SVG graph
 line_chart = pygal.Line()
 line_chart.title = 'Data evolution (RAW value)'

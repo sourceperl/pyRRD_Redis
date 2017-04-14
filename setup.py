@@ -5,12 +5,16 @@ with open('requirements.txt') as f:
 
 setup(
     name='pyRRD_Redis',
-    version='0.0.2',
+    version='0.0.3',
     license='MIT',
     url='https://github.com/sourceperl/pyRRD_Redis',
     platforms='any',
     install_requires=required,
     py_modules=[
         'pyRRD_Redis'
+    ],
+    scripts=[
+        'scripts/rrd2csv',
+        'scripts/rrd2plot'
     ]
 )
