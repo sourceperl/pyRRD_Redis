@@ -20,25 +20,27 @@ def rrd2xy(rrd_name, size):
 
 
 def animate(i):
-    # PID out
-    (x, y) = rrd2xy('rrd:' + args.tag_name, size=args.number)
     # wipe and redraw
-    ax1.clear()
+    axe.clear()
     if args.unit:
-        ax1.set_ylabel(args.tag_name + ' (' + args.unit + ')')
-    else:
-        ax1.set_ylabel(args.tag_name)
+        axe.set_ylabel(args.unit)
     # set Y limit(s)
     if args.top is not None:
-        ax1.set_ylim(top=args.top)
+        axe.set_ylim(top=args.top)
     if args.bottom is not None:
-        ax1.set_ylim(bottom=args.bottom)
-    ax1.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
-    ax1.plot(x, y, 'r', lw=2)
+        axe.set_ylim(bottom=args.bottom)
+    # plot lines
+    for t_name in args.tag_name:
+        # PID out
+        (x, y) = rrd2xy('rrd:' + t_name, size=args.number)
+        axe.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
+        axe.plot(x, y, label=t_name)
+    # set legend
+    axe.legend()
 
 # parse args
 parser = argparse.ArgumentParser()
-parser.add_argument('tag_name', type=str, help='tag name like L1_M_WOBBE')
+parser.add_argument('tag_name', type=str, nargs='+', help='tag name like L1_M_WOBBE')
 parser.add_argument('-f', '--fix', action='store_true', help='fix mode (don\'t animate graph)')
 parser.add_argument('-u', '--unit', type=str, help='unit like \'wh/nm3\'')
 parser.add_argument('-t', '--top', type=float, help='max value of Y axe', default=None)
@@ -46,8 +48,9 @@ parser.add_argument('-b', '--bottom', type=float, help='min value of Y axe', def
 parser.add_argument('-n', '--number', type=int, help='number of RRD samples from now', default=360)
 args = parser.parse_args()
 # configure plot
-fig, (ax1) = plt.subplots(nrows=1, ncols=1)
-fig.canvas.set_window_title(args.tag_name)
+fig, axe = plt.subplots(nrows=1, ncols=1)
+# set title
+fig.canvas.set_window_title('rrd2plot')
 # animate graph or not (just one animate() call)
 if args.fix:
     animate(None)
