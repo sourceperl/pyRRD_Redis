@@ -46,7 +46,11 @@ parser.add_argument('-u', '--unit', type=str, help='unit like \'wh/nm3\'')
 parser.add_argument('-t', '--top', type=float, help='max value of Y axe', default=None)
 parser.add_argument('-b', '--bottom', type=float, help='min value of Y axe', default=None)
 parser.add_argument('-n', '--number', type=int, help='number of RRD samples from now', default=360)
+parser.add_argument('-i', '--img', type=str, help='export as image file (--fix is set)')
 args = parser.parse_args()
+# compute args
+if args.img:
+    args.fix = True
 # configure plot
 fig, axe = plt.subplots(nrows=1, ncols=1)
 # set title
@@ -56,5 +60,10 @@ if args.fix:
     animate(None)
 else:
     ani = animation.FuncAnimation(fig, animate, interval=1000)
+# auto-format date
 fig.autofmt_xdate()
-plt.show()
+# export as image or show plot
+if args.img:
+    plt.savefig(args.img, dpi=100)
+else:
+    plt.show()
