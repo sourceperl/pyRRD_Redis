@@ -10,6 +10,9 @@ import matplotlib.pyplot as plt
 # parse args
 parser = argparse.ArgumentParser()
 parser.add_argument('csv_file', type=str, nargs='+', help='CSV file')
+parser.add_argument('-u', '--unit', type=str, help='unit like \'wh/nm3\'')
+parser.add_argument('-t', '--top', type=float, help='max value of Y axe', default=None)
+parser.add_argument('-b', '--bottom', type=float, help='min value of Y axe', default=None)
 args = parser.parse_args()
 
 # parse all CSV files
@@ -32,4 +35,13 @@ for k in sorted(d):
 # plot
 plt.plot(time, value)
 plt.gcf().autofmt_xdate()
+# set unit
+if args.unit:
+    plt.ylabel(args.unit)
+# set Y limit(s)
+if args.top is not None:
+    plt.ylim(top=args.top)
+if args.bottom is not None:
+    plt.ylim(bottom=args.bottom)
+# show graph
 plt.show()
