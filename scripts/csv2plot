@@ -1,0 +1,35 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import argparse
+import csv
+import sys
+from datetime import datetime
+import matplotlib.pyplot as plt
+
+# parse args
+parser = argparse.ArgumentParser()
+parser.add_argument('csv_file', type=str, nargs='+', help='CSV file')
+args = parser.parse_args()
+
+# parse all CSV files
+d = {}
+for f_name in args.csv_file:
+    with open(f_name) as file:
+        for row in csv.reader(file, delimiter=';'):
+            if len(row) >= 2:
+                d[row[0]] = row[1]
+
+# format data for plot
+value, time = [], []
+for k in sorted(d):
+    try:
+        value.append(float(d[k]))
+        time.append(datetime.strptime(k, '%Y-%m-%d %H:%M:%S'))
+    except ValueError:
+        sys.exit('CSV file format error')
+
+# plot
+plt.plot(time, value)
+plt.gcf().autofmt_xdate()
+plt.show()

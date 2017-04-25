@@ -51,6 +51,7 @@ args = parser.parse_args()
 # compute args
 if args.img:
     args.fix = True
+
 # configure plot
 fig, axe = plt.subplots(nrows=1, ncols=1)
 # set title

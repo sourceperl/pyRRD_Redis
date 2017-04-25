@@ -3,6 +3,8 @@
 
 from pyRRD_Redis import RRD_redis
 import argparse
+import csv
+import sys
 
 # parse args
 parser = argparse.ArgumentParser()
@@ -10,8 +12,11 @@ parser.add_argument('tag_name', type=str, help='tag name like L1_M_WOBBE')
 parser.add_argument('-n', '--number', type=int, help='number of RRD samples from now', default=360)
 args = parser.parse_args()
 
+# init CSV writer
+csv.register_dialect('csv_semicolon', delimiter=';', quoting=csv.QUOTE_NONE)
+writer = csv.writer(sys.stdout, dialect='csv_semicolon')
 # init RRD db
 rrd = RRD_redis('rrd:' + args.tag_name)
 # dump database
 for rrv in rrd.get(size=args.number):
-    print(rrv.time_str + ';' + rrv.value_str)
+    writer.writerow((rrv.time_str, rrv.value_str))
