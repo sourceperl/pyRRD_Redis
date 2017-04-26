@@ -49,7 +49,7 @@ parser.add_argument('-f', '--fix', action='store_true', help='fix mode (don\'t a
 parser.add_argument('-u', '--unit', type=str, help='unit like \'wh/nm3\'')
 parser.add_argument('-t', '--top', type=float, help='max value of Y axe', default=None)
 parser.add_argument('-b', '--bottom', type=float, help='min value of Y axe', default=None)
-parser.add_argument('-n', '--number', type=int, help='number of RRD samples from now', default=360)
+parser.add_argument('-n', '--number', type=int, help='number of RRD samples from now', default=0)
 parser.add_argument('-i', '--img', type=str, help='export as image file (--fix is set)')
 args = parser.parse_args()
 # compute args
