@@ -57,7 +57,7 @@ while True:
                 rrd.add_step(float(d[k]))
             except ValueError:
                 pass
-    except (IndexError, TypeError):
+    except (IndexError, TypeError, KeyError):
         pass
     # wait for next loop
     time.sleep(10.0)
