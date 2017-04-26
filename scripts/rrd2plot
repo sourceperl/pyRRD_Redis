@@ -10,7 +10,6 @@ import matplotlib
 if os.environ.get('DISPLAY', '') == '':
     matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
 import matplotlib.animation as animation
 
 
@@ -24,7 +23,7 @@ def rrd2xy(rrd_name, size):
     return x, y
 
 
-def animate(i):
+def draw():
     # wipe and redraw
     axe.clear()
     if args.unit:
@@ -36,9 +35,7 @@ def animate(i):
         axe.set_ylim(bottom=args.bottom)
     # plot lines
     for t_name in args.tag_name:
-        # PID out
         (x, y) = rrd2xy('rrd:' + t_name, size=args.number)
-        axe.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
         axe.plot(x, y, label=t_name)
     # set legend
     axe.legend()
@@ -61,13 +58,13 @@ if args.img:
 fig, axe = plt.subplots(nrows=1, ncols=1)
 # set title
 fig.canvas.set_window_title('rrd2plot')
-# animate graph or not (just one animate() call)
-if args.fix:
-    animate(None)
-else:
-    ani = animation.FuncAnimation(fig, animate, interval=1000)
 # auto-format date
 fig.autofmt_xdate()
+# first draw
+draw()
+# animate graph or not...
+if not args.fix:
+    ani = animation.FuncAnimation(fig, func=lambda f: draw(), interval=1000)
 # export as image or show plot
 if args.img:
     plt.savefig(args.img, dpi=100)
