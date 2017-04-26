@@ -5,7 +5,7 @@ with open('requirements.txt') as f:
 
 setup(
     name='pyRRD_Redis',
-    version='0.0.13',
+    version='0.0.14',
     license='MIT',
     url='https://github.com/sourceperl/pyRRD_Redis',
     platforms='any',
@@ -17,6 +17,9 @@ setup(
         'scripts/rrd2csv',
         'scripts/rrd2plot',
         'scripts/rrd_ls',
+        'scripts/rrd_add',
+        'scripts/rrd_len',
+        'scripts/rrd_rm',
         'scripts/csv2plot'
     ]
 )
