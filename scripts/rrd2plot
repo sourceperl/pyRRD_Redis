@@ -39,6 +39,8 @@ def draw():
         axe.plot(x, y, label=t_name)
     # set legend
     axe.legend()
+    # auto-format date
+    fig.autofmt_xdate()
 
 # parse args
 parser = argparse.ArgumentParser()
@@ -58,8 +60,6 @@ if args.img:
 fig, axe = plt.subplots(nrows=1, ncols=1)
 # set title
 fig.canvas.set_window_title('rrd2plot')
-# auto-format date
-fig.autofmt_xdate()
 # first draw
 draw()
 # animate graph or not...
