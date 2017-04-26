@@ -5,6 +5,11 @@ import argparse
 import csv
 import sys
 from datetime import datetime
+import os
+import matplotlib
+# fix backend for no-X environments (must be before pyplot import)
+if os.environ.get('DISPLAY', '') == '':
+    matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 # parse args
