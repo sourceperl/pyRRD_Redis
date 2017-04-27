@@ -51,23 +51,27 @@ class StepAddFunc(Enum):
     last = 4
 
 
+class RedisDefault(object):
+    client = StrictRedis()
+
+
 class RRD_redis(object):
     VAL_ARRAY_MAX_SIZE = 1000
 
-    def __init__(self, name='', client=None, size=2880, step=5.0, add_func=StepAddFunc.avg):
+    def __init__(self, name, size=7200, step=1.0, add_func=StepAddFunc.avg, client=RedisDefault.client):
         """
         Init an RRD_redis
 
         :param name: redis tag name for this RRD
         :type name: str
-        :param client: optional redis client object (for use custom value)
-        :type client: redis.client.StrictRedis
-        :param size: RRD max number of record (default is 2880: 4h with 5s step)
+        :param size: RRD max number of record (default is 7200: 2h with 1s step)
         :type size: int
         :param step: minimal number of second between two RRD record (use only with add_step())
         :type step: float
         :param add_func: type of function for use when add_step add a record (min, max, avg...)
         :type add_func: StepAddFunc
+        :param client: optional redis client object (for use custom value)
+        :type client: redis.client.StrictRedis
         :return: an RRD_redis object
         :rtype: RRD_redis
         """
@@ -78,7 +82,7 @@ class RRD_redis(object):
         self.add_func = add_func
         # private
         self._c_val = []
-        self._r = client if client else StrictRedis()
+        self._r = client
 
     @property
     def db_name(self):
