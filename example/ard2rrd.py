@@ -12,7 +12,7 @@ TAG_NAME = 'arduino_a0'
 
 # init serial port and RRD db
 ser = serial.Serial(port='/dev/ttyACM0', baudrate=9600, timeout=1)
-rrd = RRD_redis('rrd:' + TAG_NAME, size=2048, step=1.0, add_func=StepAddFunc.avg)
+rrd = RRD_redis(TAG_NAME, size=2048, step=1.0, add_func=StepAddFunc.avg)
 # fill database
 while True:
     # read A0 on serial

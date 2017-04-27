@@ -16,7 +16,7 @@ args = parser.parse_args()
 csv.register_dialect('csv_semicolon', delimiter=';', quoting=csv.QUOTE_NONE)
 writer = csv.writer(sys.stdout, dialect='csv_semicolon')
 # init RRD db
-rrd = RRD_redis('rrd:' + args.tag_name)
+rrd = RRD_redis(args.tag_name)
 # dump database
 for rrv in rrd.get(size=args.number):
     writer.writerow((rrv.time_str, rrv.value_str))

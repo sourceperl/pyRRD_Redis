@@ -34,9 +34,9 @@ def draw():
     if args.bottom is not None:
         axe.set_ylim(bottom=args.bottom)
     # plot lines
-    for t_name in args.tag_name:
-        (x, y) = rrd2xy('rrd:' + t_name, size=args.number)
-        axe.plot(x, y, label=t_name)
+    for tag_name in args.tag_name:
+        (x, y) = rrd2xy(tag_name, size=args.number)
+        axe.plot(x, y, label=tag_name)
     # set legend
     axe.legend()
     # auto-format date

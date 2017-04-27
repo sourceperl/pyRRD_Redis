@@ -9,7 +9,7 @@ from pyRRD_Redis import RRD_redis, StepAddFunc
 TAG_NAME = 'test1'
 
 # init RRD db
-rrd = RRD_redis('rrd:' + TAG_NAME, size=2048, step=1.0, add_func=StepAddFunc.avg)
+rrd = RRD_redis(TAG_NAME, size=2048, step=1.0, add_func=StepAddFunc.avg)
 # fill database (8000 samples with 1ms between us, step set to 1s)
 # "step=1.0, add_func=StepAddFunc.avg" can be helpful if sample source is noisy
 for i in range(0, 8000):

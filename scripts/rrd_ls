@@ -3,10 +3,9 @@
 
 # list all rrd tag available on redis server
 
-from redis import StrictRedis
+from pyRRD_Redis import RRD_redis
 
-client = StrictRedis()
-l_rrd = client.keys('rrd:*')
+rrd = RRD_redis()
 
-for tag in l_rrd:
-    print(tag.decode('utf-8')[4:])
+for tag_name in rrd.ls():
+    print(tag_name)

@@ -15,14 +15,14 @@ app.debug = True
 @app.route("/add/<string:tag_name>/<int:value>")
 @app.route("/add/<string:tag_name>/<float:value>")
 def add(tag_name, value):
-    rrd = RRD_redis('rrd:' + tag_name)
+    rrd = RRD_redis(tag_name)
     rrd.add(value)
     return 'it\'s ok'
 
 
 @app.route("/last/<string:tag_name>")
 def last(tag_name):
-    rrd = RRD_redis('rrd:' + tag_name)
+    rrd = RRD_redis(tag_name)
     l_rrv = rrd.get(size=1)
     if len(l_rrv) == 1:
         return '<b>' + str(l_rrv[0].value) + '</b>'
@@ -35,7 +35,7 @@ def plot(tag_name):
     # size URL params (default is 0)
     size = int(request.args.get('size', 0))
     # live PNG generator
-    rrd = RRD_redis('rrd:' + tag_name)
+    rrd = RRD_redis(tag_name)
     fig = Figure()
     ax = fig.add_subplot(111)
     x = []

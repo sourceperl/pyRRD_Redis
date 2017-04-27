@@ -16,5 +16,5 @@ parser.add_argument('-t', '--time', type=float,
 args = parser.parse_args()
 
 # add value to RRD
-rrd = RRD_redis('rrd:' + args.tag_name)
+rrd = RRD_redis(args.tag_name)
 rrd.add(args.tag_value, at_time=args.time)

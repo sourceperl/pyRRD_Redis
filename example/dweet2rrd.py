@@ -42,7 +42,7 @@ class Dweet(object):
             return None
 
 # init
-rrd = RRD_redis('', size=8640, step=10.0, add_func=StepAddFunc.avg)
+rrd = RRD_redis(size=8640, step=10.0, add_func=StepAddFunc.avg)
 dw = Dweet(dweet_id='0d328b86-fcba-469e-a31a-adfad51be68a')
 
 # main loop
@@ -52,7 +52,7 @@ while True:
         d = dw.get()['with'][0]['content']
         # setRRD for all dweet floats vars
         for k in d:
-            rrd.name = 'rrd:' + k
+            rrd.name = k
             try:
                 rrd.add_step(float(d[k]))
             except ValueError:

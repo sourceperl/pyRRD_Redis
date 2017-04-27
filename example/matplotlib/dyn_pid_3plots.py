@@ -20,7 +20,7 @@ def rrd2xy(rrd_name, size=600):
 
 def animate(i):
     # PID out
-    (x, y) = rrd2xy('rrd:pid_out')
+    (x, y) = rrd2xy('pid_out')
     # wipe and redraw
     ax1.clear()
     ax1.set_ylabel('PID out (%)')
@@ -28,7 +28,7 @@ def animate(i):
     ax1.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
     ax1.plot(x, y, 'r', lw=2)
     # # Set point
-    (x, y) = rrd2xy('rrd:set_point')
+    (x, y) = rrd2xy('set_point')
     # # wipe and redraw
     ax2.clear()
     ax2.set_ylabel('SP (bar)')
@@ -36,7 +36,7 @@ def animate(i):
     ax2.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
     ax2.plot(x, y, 'b', lw=2)
     # # Set point
-    (x, y) = rrd2xy('rrd:proc_value')
+    (x, y) = rrd2xy('proc_value')
     # wipe and redraw
     ax3.clear()
     ax3.set_ylabel('PV (bar)')

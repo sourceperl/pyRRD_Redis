@@ -54,15 +54,15 @@ class StepAddFunc(Enum):
 class RRD_redis(object):
     VAL_ARRAY_MAX_SIZE = 1000
 
-    def __init__(self, name, client=None, size=2048, step=5.0, add_func=StepAddFunc.avg):
+    def __init__(self, name='', client=None, size=2880, step=5.0, add_func=StepAddFunc.avg):
         """
         Init an RRD_redis
 
-        :param name: redis key name for this RRD
+        :param name: redis tag name for this RRD
         :type name: str
         :param client: optional redis client object (for use custom value)
         :type client: redis.client.StrictRedis
-        :param size: RRD max number of record (default is 2048)
+        :param size: RRD max number of record (default is 2880: 4h with 5s step)
         :type size: int
         :param step: minimal number of second between two RRD record (use only with add_step())
         :type step: float
@@ -80,6 +80,10 @@ class RRD_redis(object):
         self._c_val = []
         self._r = client if client else StrictRedis()
 
+    @property
+    def db_name(self):
+        return 'rrd:' + self.name if self.name else ''
+
     def add(self, value, at_time=None):
         """
         Insert value to RRD db and remove the older one
@@ -93,22 +97,22 @@ class RRD_redis(object):
             while True:
                 try:
                     # watch no change occur on this RRD during add() update
-                    pipe.watch(self.name)
+                    pipe.watch(self.db_name)
                     # if at_time is not defined, just insert new record and remove older record
                     if at_time is None or len(self) == 0:
                         # insert at first position
-                        pipe.lpush(self.name, RRD_value(value=value, timestamp=at_time).dump())
+                        pipe.lpush(self.db_name, RRD_value(value=value, timestamp=at_time).dump())
                     else:
                         # try to insert new record before the closest record
                         for rrv in self.get():
                             if at_time > rrv.timestamp:
-                                pipe.linsert(self.name, 'BEFORE', rrv.dump(),
+                                pipe.linsert(self.db_name, 'BEFORE', rrv.dump(),
                                              RRD_value(value=value, timestamp=at_time).dump())
                                 break
                         else:
-                            pipe.rpush(self.name, RRD_value(value=value, timestamp=at_time).dump())
+                            pipe.rpush(self.db_name, RRD_value(value=value, timestamp=at_time).dump())
                     # ensure DB size keep <= max size
-                    pipe.ltrim(self.name, 0, self.size - 1)
+                    pipe.ltrim(self.db_name, 0, self.size - 1)
                     pipe.execute()
                     # exit, update is atomic
                     break
@@ -157,21 +161,36 @@ class RRD_redis(object):
         """
         # default size is all RRD
         if size == 0:
-            size = self._r.llen(self.name)
+            size = self._r.llen(self.db_name)
         # format and return array of RRD_value
         ret_l = []
-        for s in self._r.lrange(self.name, start, start + size - 1):
+        for s in self._r.lrange(self.db_name, start, start + size - 1):
             ret_l.append(RRD_value(from_str=s))
         return ret_l
 
-    def clear(self):
+    def rm(self):
         """
         Remove all record from the RRD
         """
-        self._r.delete(self.name)
+        self._r.delete(self.db_name)
+
+    def ls(self):
+        """
+        List all RRDs available (return tag names)
+
+        :return: list of tag names
+        :rtype: list
+        """
+        l_tag = []
+        for tag in self._r.keys('rrd:*'):
+            l_tag.append(tag.decode('utf-8')[4:])
+        return l_tag
 
     def __len__(self):
         """
-        Retrieve current size of the RRD
+        Get current size of the RRD
+
+        :return: number of items in RRD
+        :rtype: int
         """
-        return self._r.llen(self.name)
+        return self._r.llen(self.db_name)

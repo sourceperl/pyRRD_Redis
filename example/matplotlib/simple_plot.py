@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from pyRRD_Redis import RRD_redis
 
 # init RRD db
-rrd = RRD_redis('rrd:test1')
+rrd = RRD_redis('test1')
 
 # make up some data
 x = []

@@ -1,14 +1,17 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
+import argparse
 import pygal
 from pyRRD_Redis import RRD_redis
 
-# some const
-TAG_NAME = 'test1'
+# parse args
+parser = argparse.ArgumentParser()
+parser.add_argument('tag_name', type=str, help='tag name like L1_M_WOBBE')
+args = parser.parse_args()
 
 # init RRD db
-data1 = RRD_redis('rrd:' + TAG_NAME)
+data1 = RRD_redis(args.tag_name)
 # build a SVG graph
 line_chart = pygal.Line()
 line_chart.title = 'Data evolution (RAW value)'
