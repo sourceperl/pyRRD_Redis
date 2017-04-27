@@ -59,7 +59,7 @@ if args.img:
 # configure plot
 fig, axe = plt.subplots(nrows=1, ncols=1)
 # set title
-fig.canvas.set_window_title('rrd2plot')
+fig.canvas.set_window_title('rrd_plot')
 # first draw
 draw()
 # animate graph or not...
