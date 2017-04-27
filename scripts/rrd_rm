@@ -11,5 +11,5 @@ parser = argparse.ArgumentParser()
 parser.add_argument('tag_name', type=str, help='tag name like L1_M_WOBBE')
 args = parser.parse_args()
 
-rrd = RRD_redis(args.tag_name)
-rrd.rm()
+# do remove
+RRD_redis(args.tag_name).rm()

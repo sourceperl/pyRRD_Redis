@@ -5,7 +5,5 @@
 
 from pyRRD_Redis import RRD_redis
 
-rrd = RRD_redis()
-
-for tag_name in rrd.ls():
+for tag_name in RRD_redis('').ls():
     print(tag_name)

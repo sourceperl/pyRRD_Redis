@@ -12,5 +12,4 @@ parser.add_argument('tag_name', type=str, help='tag name like L1_M_WOBBE')
 args = parser.parse_args()
 
 # read RRD length
-rrd = RRD_redis(args.tag_name)
-print(len(rrd))
+print(len(RRD_redis(args.tag_name)))
