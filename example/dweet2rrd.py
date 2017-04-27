@@ -42,7 +42,7 @@ class Dweet(object):
             return None
 
 # init
-rrd = RRD_redis(size=8640, step=10.0, add_func=StepAddFunc.avg)
+rrds = {}
 dw = Dweet(dweet_id='0d328b86-fcba-469e-a31a-adfad51be68a')
 
 # main loop
@@ -51,10 +51,10 @@ while True:
         # get dweet json msg as dict
         d = dw.get()['with'][0]['content']
         # setRRD for all dweet floats vars
-        for k in d:
-            rrd.name = k
+        for var_name in d:
+            rrds[var_name] = rrds.get(var_name, RRD_redis(var_name, size=8640, step=10.0))
             try:
-                rrd.add_step(float(d[k]))
+                rrds[var_name].add_step(float(d[var_name]))
             except ValueError:
                 pass
     except (IndexError, TypeError, KeyError):
