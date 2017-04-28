@@ -9,7 +9,7 @@
         function chart_load(nb)
         {
             img_path = '/charts/tag/{{ tag }}/1.png'
-            $('#imgChart').attr('src', img_path + '?nb=' + nb);
+            $('#imgChart').attr('src', img_path + '?nb=' + nb + '&_nocache=' + new Date().getTime());
         }
 
         function init()
