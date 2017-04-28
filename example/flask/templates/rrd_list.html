@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>RRD list</title>
-    <link rel="stylesheet" href="static/css/pure-min.css" />
+    <link rel="stylesheet" href="/static/css/pure-min.css" />
 </head>
 <body>
 <table class="pure-table pure-table-bordered">
 {% for tag in tags %}
 <tr>
     <td align="center">{{ tag }}</td>
-    <td><a href="/api/get?tag={{ tag }}"><img src="static/img/gnome-find.svg"></a></td>
-    <td><a href="/view/chart?tag={{ tag }}"><img src="static/img/gnome-monitor.svg"></a></td>
+    <td><a href="/api/get?tag={{ tag }}" target="_blank"><img src="/static/img/gnome-find.svg"></a></td>
+    <td><a href="/view/chart?tag={{ tag }}" target="_blank"><img src="/static/img/gnome-monitor.svg"></a></td>
 </tr>
 {% endfor %}
 </table>

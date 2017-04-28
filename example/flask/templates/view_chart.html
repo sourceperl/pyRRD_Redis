@@ -1,14 +1,37 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>RRD list</title>
-    <link rel="stylesheet" href="static/css/pure-min.css" />
+    <title>RRD chart viewer</title>
+    <link rel="stylesheet" href="/static/css/pure-min.css" />
+    <script type="text/javascript" src="/static/js/jquery.min.js"></script>
+    <script type="text/javascript">
+        function chart_load(nb)
+        {
+            img_path = '/charts/tag/{{ tag }}/1.png'
+            $('#imgChart').attr('src', img_path + '?nb=' + nb);
+        }
+
+        function init()
+        {
+            chart_load(0);
+        }
+    </script>
 </head>
-<body>
+<body onload="init();">
 <table>
-    <tr><td align="center">{{ tag }}</td></tr>
-    <tr><td align="center"><img src="/charts/tag/{{ tag }}/1.png"></td></tr>
+    <tr>
+        <td align="center" colspan="4">{{ tag }}</td>
+    </tr>
+    <tr>
+        <td align="center" colspan="4"><img src="" id="imgChart"></td>
+    </tr>
+    <tr>
+        <td align="center"><button onclick="chart_load(360)">360 samples</button></td>
+        <td align="center"><button onclick="chart_load(720)">720 samples</button></td>
+        <td align="center"><button onclick="chart_load(1440)">1440 samples</button></td>
+        <td align="center"><button onclick="chart_load(0)">full samples</button></td>
+    </tr>
 </table>
 </body>
 </html>

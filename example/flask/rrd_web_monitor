@@ -19,8 +19,18 @@ def root():
 
 @app.route("/view/chart")
 def view_chart():
+    # URL params
     tag = request.args.get('tag', '', type=str)
+    # populate template
     return render_template('view_chart.html', tag=tag)
+
+
+@app.route("/view/tag")
+def view_tag():
+    # URL params
+    tag = request.args.get('tag', '', type=str)
+    # populate template
+    return render_template('view_tag.html', tag=tag)
 
 
 @app.route("/charts/tag/<string:tag_name>/1.png")
@@ -49,7 +59,9 @@ def plot(tag_name):
 
 @app.route("/api/get")
 def get():
+    # URL params
     tag_name = request.args.get('tag', '', type=str)
+    # build json msg
     v = RRD_redis(tag_name).get(size=1)[0]
     return jsonify(value=v.value, timestamp=v.timestamp, time_str=v.time_str)
 
