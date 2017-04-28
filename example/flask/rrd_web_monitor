@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from flask import Flask, make_response, request
+from flask import Flask, make_response, request, render_template, jsonify
 from pyRRD_Redis import RRD_redis
 import datetime
 from io import BytesIO
@@ -9,43 +9,35 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 
 app = Flask(__name__)
-app.debug = True
 
 
-@app.route("/add/<string:tag_name>/<int:value>")
-@app.route("/add/<string:tag_name>/<float:value>")
-def add(tag_name, value):
-    rrd = RRD_redis(tag_name)
-    rrd.add(value)
-    return 'it\'s ok'
+@app.route("/")
+def root():
+    tags = RRD_redis('').ls()
+    return render_template('rrd_list.html', tags=tags)
 
 
-@app.route("/last/<string:tag_name>")
-def last(tag_name):
-    rrd = RRD_redis(tag_name)
-    l_rrv = rrd.get(size=1)
-    if len(l_rrv) == 1:
-        return '<b>' + str(l_rrv[0].value) + '</b>'
-    else:
-        return '%s not exist' % tag_name
+@app.route("/view/chart")
+def view_chart():
+    tag = request.args.get('tag', '', type=str)
+    return render_template('view_chart.html', tag=tag)
 
 
-@app.route("/plot/<string:tag_name>.png")
+@app.route("/charts/tag/<string:tag_name>/1.png")
 def plot(tag_name):
-    # size URL params (default is 0)
-    size = int(request.args.get('size', 0))
+    # URL params
+    nb = int(request.args.get('nb', 0))
     # live PNG generator
     rrd = RRD_redis(tag_name)
     fig = Figure()
     ax = fig.add_subplot(111)
     x = []
     y = []
-    for rrv in rrd.get(size=size):
+    for rrv in rrd.get(size=nb):
         x.append(datetime.datetime.fromtimestamp(rrv.timestamp))
         y.append(rrv.value)
     ax.plot_date(x, y, '-', label=tag_name)
-    ax.legend()
-    # ax.xaxis.set_major_formatter(DateFormatter('%Y-%m-%d'))
+    # ax.legend()
     fig.autofmt_xdate()
     canvas = FigureCanvas(fig)
     png_output = BytesIO()
@@ -55,5 +47,12 @@ def plot(tag_name):
     return response
 
 
+@app.route("/api/get")
+def get():
+    tag_name = request.args.get('tag', '', type=str)
+    v = RRD_redis(tag_name).get(size=1)[0]
+    return jsonify(value=v.value, timestamp=v.timestamp, time_str=v.time_str)
+
+
 if __name__ == "__main__":
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', debug=True)
