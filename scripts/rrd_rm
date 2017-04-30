@@ -4,12 +4,23 @@
 # command line utility for remove value from RRD list
 
 import argparse
+import fnmatch
 from pyRRD_Redis import RRD_redis
 
 # parse args
 parser = argparse.ArgumentParser()
-parser.add_argument('tag_name', type=str, help='tag name like L1_M_WOBBE')
+parser.add_argument('tag_name', type=str,
+                    help='tag like L1_M_WOBBE or pattern like L1_* in match mode to remove')
+parser.add_argument('--match', action='store_true',
+                    help='match mode: remove rrd tag list matching tag_name pattern')
 args = parser.parse_args()
 
 # do remove
-RRD_redis(args.tag_name).rm()
+if args.match:
+    # remove list of tag matching pattern
+    for tag in RRD_redis('').ls():
+        if fnmatch.fnmatch(tag, args.tag_name):
+            RRD_redis(tag).rm()
+else:
+    # remove tag_name only
+    RRD_redis(args.tag_name).rm()
