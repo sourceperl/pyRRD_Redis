@@ -5,11 +5,16 @@ with open('requirements.txt') as f:
 
 setup(
     name='pyRRD_Redis',
-    version='0.0.17',
+    version='0.0.18',
     license='MIT',
     url='https://github.com/sourceperl/pyRRD_Redis',
     platforms='any',
     install_requires=required,
+    packages=[
+        'flask_rrd_web_service'
+    ],
+    include_package_data=True,
+    zip_safe=False,
     py_modules=[
         'pyRRD_Redis'
     ],
@@ -20,6 +25,7 @@ setup(
         'scripts/rrd_add',
         'scripts/rrd_len',
         'scripts/rrd_rm',
+        'scripts/rrd_web_service',
         'scripts/csv_plot'
     ]
 )

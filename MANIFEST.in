@@ -1,0 +1,2 @@
+recursive-include flask_rrd_web_service/static *
+recursive-include flask_rrd_web_service/templates *

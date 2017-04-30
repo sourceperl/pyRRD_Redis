@@ -1,0 +1,17 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+# command line utility for add value to RRD
+
+import argparse
+from flask_rrd_web_service.app import app
+
+# parse args
+parser = argparse.ArgumentParser()
+parser.add_argument('-d', '--debug', action='store_true', help='run service in debug mode')
+parser.add_argument('-i', '--ip', type=str, help='ip address to bind', default='0.0.0.0')
+parser.add_argument('-p', '--port', type=int, help='ip address to bind', default=8080)
+args = parser.parse_args()
+
+# run web service
+app.run(debug=args.debug, host=args.ip, port=args.port)
