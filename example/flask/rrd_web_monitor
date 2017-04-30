@@ -4,7 +4,8 @@
 from flask import Flask, make_response, request, render_template, jsonify
 from pyRRD_Redis import RRD_redis
 import datetime
-from io import BytesIO
+import csv
+from io import BytesIO, StringIO
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 
@@ -23,14 +24,6 @@ def view_chart():
     tag = request.args.get('tag', '', type=str)
     # populate template
     return render_template('view_chart.html', tag=tag)
-
-
-@app.route("/view/value")
-def view_tag():
-    # URL params
-    tag = request.args.get('tag', '', type=str)
-    # populate template
-    return render_template('view_value.html', tag=tag)
 
 
 @app.route("/charts/tag/<string:tag_name>/1.png")
@@ -79,6 +72,25 @@ def get_all():
         d_list[t_name] = {'value': t.value, 'update_str': t.time_str}
     # return json msg or error
     return jsonify(d_list)
+
+
+@app.route("/api/csv")
+def get_csv():
+    # URL params
+    tag = request.args.get('tag', '', type=str)
+    nb = request.args.get('nb', 0, type=int)
+    # init CSV writer
+    si = StringIO()
+    csv.register_dialect('csv_semicolon', delimiter=';', quoting=csv.QUOTE_NONE)
+    writer = csv.writer(si, dialect='csv_semicolon')
+    # populate CSV
+    for rrv in RRD_redis(tag).get(size=nb):
+        writer.writerow([rrv.time_str, rrv.value])
+    # format response
+    response = make_response(si.getvalue())
+    response.headers['Content-Disposition'] = 'attachment; filename=exp_%s.csv' % tag
+    response.headers['Content-type'] = 'text/csv'
+    return response
 
 
 if __name__ == "__main__":
