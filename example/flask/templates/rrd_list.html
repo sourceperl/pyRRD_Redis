@@ -3,15 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <title>RRD list</title>
-    <link rel="stylesheet" href="/static/css/pure-min.css" />
+    <link rel="stylesheet" href="/static/css/table_bisque.css" />
+    <script type="text/javascript" src="/static/js/jquery.min.js"></script>
+    <script type="text/javascript">
+        // refresh with ajax
+        function ajax_worker()
+        {
+            // do ajax request
+            $.ajax({
+                async: "true",
+                type: "GET",
+                url: "/api/get_all",
+                success: function( result ) {
+                    $.each(result, function(i, val) {
+                        $("#tag_value_" + i).html(val.value.toFixed(2));
+                        $("#tag_update_" + i).html(val.update_str);
+                    });
+                }
+            });
+            // refresh after 5000 ms
+            setTimeout(ajax_worker, 5000);
+        }
+        // init on load
+        $(ajax_worker())
+    </script>
 </head>
 <body>
 <table class="pure-table pure-table-bordered">
+<tr>
+    <th>Tag</th>
+    <th>Read json</th>
+    <th>Graph</th>
+    <th>Live value</th>
+    <th>Last update</th>
+</tr>
 {% for tag in tags %}
 <tr>
     <td align="center">{{ tag }}</td>
-    <td><a href="/api/get?tag={{ tag }}" target="_blank"><img src="/static/img/gnome-find.svg"></a></td>
-    <td><a href="/view/chart?tag={{ tag }}" target="_blank"><img src="/static/img/gnome-monitor.svg"></a></td>
+    <td align="center"><a href="/api/get?tag={{ tag }}" target="_blank"><img src="/static/img/gnome-find.svg"></a></td>
+    <td align="center"><a href="/view/chart?tag={{ tag }}" target="_blank"><img src="/static/img/gnome-monitor.svg"></a></td>
+    <td align="center"><p id="tag_value_{{ tag }}"></p></td>
+    <td align="center"><p id="tag_update_{{ tag }}"></p></td>
 </tr>
 {% endfor %}
 </table>

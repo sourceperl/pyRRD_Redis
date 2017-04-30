@@ -14,7 +14,7 @@ app = Flask(__name__)
 @app.route("/")
 def root():
     tags = RRD_redis('').ls()
-    return render_template('rrd_list.html', tags=tags)
+    return render_template('rrd_list.html', tags=sorted(tags))
 
 
 @app.route("/view/chart")
@@ -25,12 +25,12 @@ def view_chart():
     return render_template('view_chart.html', tag=tag)
 
 
-@app.route("/view/tag")
+@app.route("/view/value")
 def view_tag():
     # URL params
     tag = request.args.get('tag', '', type=str)
     # populate template
-    return render_template('view_tag.html', tag=tag)
+    return render_template('view_value.html', tag=tag)
 
 
 @app.route("/charts/tag/<string:tag_name>/1.png")
@@ -62,8 +62,23 @@ def get():
     # URL params
     tag_name = request.args.get('tag', '', type=str)
     # build json msg
-    v = RRD_redis(tag_name).get(size=1)[0]
-    return jsonify(value=v.value, timestamp=v.timestamp, time_str=v.time_str)
+    v = RRD_redis(tag_name).get(size=1)
+    # return json msg or error
+    if len(v) == 1:
+        return jsonify(value=v[0].value, timestamp=v[0].timestamp, time_str=v[0].time_str)
+    else:
+        return '-1', 400
+
+
+@app.route("/api/get_all")
+def get_all():
+    # request all RRDs and format a list
+    d_list = {}
+    for t_name in sorted(RRD_redis('').ls()):
+        t = RRD_redis(t_name).get(size=1)[0]
+        d_list[t_name] = {'value': t.value, 'update_str': t.time_str}
+    # return json msg or error
+    return jsonify(d_list)
 
 
 if __name__ == "__main__":

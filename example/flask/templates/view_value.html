@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RRD tag view</title>
+    <!--<link rel="stylesheet" href="/static/css/pure-min.css" />-->
+    <script type="text/javascript" src="/static/js/jquery.min.js"></script>
+    <script type="text/javascript">
+        // refresh with ajax
+        function ajax_worker()
+        {
+            // do ajax request
+            $.ajax({
+                async: "true",
+                type: "GET",
+                url: "/api/get",
+                data: {
+                    tag: "{{ tag }}"
+                },
+                success: function( result ) {
+                    $( "#value" ).html( "<strong>" + result.value + "</strong>" );
+                }
+            });
+            // refresh after 5000 ms
+            setTimeout(ajax_worker, 5000);
+        }
+        // init on load
+        $(ajax_worker())
+    </script>
+</head>
+<body>
+<table cellspacing="40">
+    <tr>
+        <td align="center">{{ tag }}</td>
+        <td align="center" id="value"></td>
+    </tr>
+</table>
+</body>
+</html>
