@@ -8,8 +8,8 @@
     <script type="text/javascript" src="/static/js/Chart.min.js"></script>
     <script type="text/javascript">
     function build_chart(size) {
-	// limit size to 255 items
-	if (size > 256 || size <= 0) size = 256;
+	    // limit size to 256 items
+	    if (size > 256 || size <= 0) size = 256;
         // load data from json
         $.ajax({
             url  : "/api/get.json",
@@ -60,12 +60,14 @@
     }
     // periodic worker
     $(function periodic_worker() {
-        //myLiveChart.add(45);
+        // do refresh here
         // refresh after 5000 ms
         setTimeout(periodic_worker, 5000);
     });
-    // init
-    $(build_chart(0))
+    // call on load
+    $(function init() {
+        build_chart(32);
+    });
     </script>
 </head>
 <body>

@@ -5,19 +5,18 @@
     <title>RRD chart viewer</title>
     <script type="text/javascript" src="/static/js/jquery.min.js"></script>
     <script type="text/javascript">
-        function chart_load(nb)
+        function chart_load(size)
         {
             img_path = '/charts/tag/{{ tag }}/1.png'
-            $('#imgChart').attr('src', img_path + '?nb=' + nb + '&_nocache=' + new Date().getTime());
+            $('#imgChart').attr('src', img_path + '?size=' + size + '&_nocache=' + new Date().getTime());
         }
-
-        function init()
-        {
-            chart_load(0);
-        }
+        // call on load
+        $(function init() {
+            chart_load(360);
+        });
     </script>
 </head>
-<body onload="init();">
+<body>
 <table>
     <tr>
         <td align="center" colspan="4">{{ tag }}</td>

@@ -12,22 +12,21 @@ from matplotlib.figure import Figure
 app = Flask(__name__)
 
 
-@app.route("/")
+@app.route('/')
 def root():
     tags = RRD_redis('').ls()
     return render_template('rrd_list.html', tags=sorted(tags))
 
 
-@app.route("/view/chart_js")
+@app.route('/view/chart_js')
 def view_chart_js():
     # URL params
     tag = request.args.get('tag', '', type=str)
-    size = request.args.get('size', 255, type=int)
     # populate template
     return render_template('view_chart_js.html', tag=tag)
 
 
-@app.route("/view/chart_png")
+@app.route('/view/chart_png')
 def view_chart_png():
     # URL params
     tag = request.args.get('tag', '', type=str)
@@ -35,17 +34,17 @@ def view_chart_png():
     return render_template('view_chart_png.html', tag=tag)
 
 
-@app.route("/charts/tag/<string:tag_name>/1.png")
+@app.route('/charts/tag/<string:tag_name>/1.png')
 def plot(tag_name):
     # URL params
-    nb = int(request.args.get('nb', 0))
+    size = int(request.args.get('size', 0))
     # live PNG generator
     rrd = RRD_redis(tag_name)
     fig = Figure()
     ax = fig.add_subplot(111)
     x = []
     y = []
-    for rrv in rrd.get(size=nb):
+    for rrv in rrd.get(size=size):
         x.append(datetime.datetime.fromtimestamp(rrv.timestamp))
         y.append(rrv.value)
     ax.plot_date(x, y, '-', label=tag_name)
@@ -59,9 +58,9 @@ def plot(tag_name):
     return response
 
 
-@app.route("/api/get.json")
+@app.route('/api/get.json')
 def get():
-    # URL params
+    # URL params (limit request to 512 items max)
     tag_name = request.args.get('tag', '', type=str)
     size = min(512, request.args.get('size', 512, type=int))
     # build json msg
@@ -76,7 +75,7 @@ def get():
         return '-1', 400
 
 
-@app.route("/api/get_last.json")
+@app.route('/api/get_last.json')
 def get_last():
     # URL params
     tag_name = request.args.get('tag', '', type=str)
@@ -89,7 +88,7 @@ def get_last():
         return '-1', 400
 
 
-@app.route("/api/get_all.json")
+@app.route('/api/get_all.json')
 def get_all():
     # request all RRDs and format a list
     d_list = {}
@@ -100,7 +99,7 @@ def get_all():
     return jsonify(items=d_list)
 
 
-@app.route("/api/get.csv")
+@app.route('/api/get.csv')
 def get_csv():
     # URL params
     tag = request.args.get('tag', '', type=str)
@@ -119,5 +118,5 @@ def get_csv():
     return response
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080, debug=True)
