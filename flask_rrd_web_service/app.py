@@ -18,12 +18,20 @@ def root():
     return render_template('rrd_list.html', tags=sorted(tags))
 
 
-@app.route("/view/chart")
-def view_chart():
+@app.route("/view/chart_js")
+def view_chart_js():
     # URL params
     tag = request.args.get('tag', '', type=str)
     # populate template
-    return render_template('view_chart.html', tag=tag)
+    return render_template('view_chart_js.html', tag=tag)
+
+
+@app.route("/view/chart_png")
+def view_chart_png():
+    # URL params
+    tag = request.args.get('tag', '', type=str)
+    # populate template
+    return render_template('view_chart_png.html', tag=tag)
 
 
 @app.route("/charts/tag/<string:tag_name>/1.png")
@@ -50,8 +58,25 @@ def plot(tag_name):
     return response
 
 
-@app.route("/api/get")
+@app.route("/api/get.json")
 def get():
+    # URL params
+    tag_name = request.args.get('tag', '', type=str)
+    size = request.args.get('size', 0, type=int)
+    # build json msg
+    l_rrv = RRD_redis(tag_name).get(size=size)
+    # return json msg or error
+    if len(l_rrv) >= 1:
+        l_js_msg = []
+        for rrv in l_rrv:
+            l_js_msg.append({'value': rrv.value, 'timestamp': rrv.timestamp, 'time_str': rrv.time_str})
+        return jsonify(l_js_msg)
+    else:
+        return '-1', 400
+
+
+@app.route("/api/get_last.json")
+def get_last():
     # URL params
     tag_name = request.args.get('tag', '', type=str)
     # build json msg
@@ -63,7 +88,7 @@ def get():
         return '-1', 400
 
 
-@app.route("/api/get_all")
+@app.route("/api/get_all.json")
 def get_all():
     # request all RRDs and format a list
     d_list = {}
@@ -74,17 +99,17 @@ def get_all():
     return jsonify(d_list)
 
 
-@app.route("/api/csv")
+@app.route("/api/get.csv")
 def get_csv():
     # URL params
     tag = request.args.get('tag', '', type=str)
-    nb = request.args.get('nb', 0, type=int)
+    size = request.args.get('size', 0, type=int)
     # init CSV writer
     si = StringIO()
     csv.register_dialect('csv_semicolon', delimiter=';', quoting=csv.QUOTE_NONE)
     writer = csv.writer(si, dialect='csv_semicolon')
     # populate CSV
-    for rrv in RRD_redis(tag).get(size=nb):
+    for rrv in RRD_redis(tag).get(size=size):
         writer.writerow([rrv.time_str, rrv.value])
     # format response
     response = make_response(si.getvalue())
@@ -94,4 +119,4 @@ def get_csv():
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0', port=8080, debug=True)

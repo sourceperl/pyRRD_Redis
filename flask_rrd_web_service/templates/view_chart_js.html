@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RRD chart viewer</title>
+    <script type="text/javascript" src="/static/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/js/moment.min.js"></script>
+    <script type="text/javascript" src="/static/js/Chart.min.js"></script>
+    <script type="text/javascript">
+    function build_chart(size) {
+        // load data from json
+        $.ajax({
+            url  : "/api/get.json",
+            type : "GET",
+            data : "tag={{ tag }}&size=" + size + "&_nocache=" + new Date().getTime(),
+            dataType: "json"
+        }).done(function (results) {
+            var labels = [], data=[];
+            // Split timestamp and data into separate arrays
+            results.forEach(function(packet) {
+                labels.push(new Date(packet.timestamp*1000));
+                data.push(parseFloat(packet.value));
+            });
+            // Create the chart.js data structure using labels and data
+            var tempData = {
+                labels : labels,
+                datasets : [{
+                    label                 : 'RRD {{ tag }} value',
+                    data                  : data,
+                    backgroundColor       : 'rgba(102, 255, 153, 0.2)'
+                }]
+            };
+            // build graph
+            myLiveChart = new Chart($("#myChart"), {
+                type: "line",
+                data: tempData,
+                options: {
+                    scales: {
+                        xAxes: [{
+                            type: 'time',
+                            time: {
+                                displayFormats: {
+                                    millisecond: 'ss.SSS[s]',
+                                    second: 'HH:mm:ss',
+                                    minute: 'HH:mm',
+                                    hour:   'DD HH',
+                                    day:    'MM-DD',
+                                    week:   'MM-DD',
+                                    month:  'YYYY-MM',
+                                    year:   'YYYY'
+                                }
+                            }
+                        }]
+                    }
+                }
+            });
+        });
+    }
+    // periodic worker
+    $(function periodic_worker() {
+        //myLiveChart.add(45);
+        // refresh after 5000 ms
+        setTimeout(periodic_worker, 5000);
+    });
+    // init
+    $(build_chart(0))
+    </script>
+</head>
+<body>
+<table>
+    <tr>
+        <td align="center" colspan="4">plot RRD {{ tag }} (with Charts.js)</td>
+    </tr>
+    <tr>
+        <td align="center" colspan="4">
+            <canvas style="width:800px; height:400px;" id="myChart"></canvas>
+        </td>
+    </tr>
+    <tr>
+        <td align="center"><button onclick="build_chart(360)">360 samples</button></td>
+        <td align="center"><button onclick="build_chart(720)">720 samples</button></td>
+        <td align="center"><button onclick="build_chart(1440)">1440 samples</button></td>
+        <td align="center"><button onclick="build_chart(0)">full samples</button></td>
+    </tr>
+</table>
+</body>
+</html>
