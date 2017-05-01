@@ -22,6 +22,7 @@ def root():
 def view_chart_js():
     # URL params
     tag = request.args.get('tag', '', type=str)
+    size = request.args.get('size', 255, type=int)
     # populate template
     return render_template('view_chart_js.html', tag=tag)
 
@@ -62,15 +63,15 @@ def plot(tag_name):
 def get():
     # URL params
     tag_name = request.args.get('tag', '', type=str)
-    size = request.args.get('size', 0, type=int)
+    size = min(512, request.args.get('size', 512, type=int))
     # build json msg
     l_rrv = RRD_redis(tag_name).get(size=size)
     # return json msg or error
     if len(l_rrv) >= 1:
         l_js_msg = []
         for rrv in l_rrv:
-            l_js_msg.append({'value': rrv.value, 'timestamp': rrv.timestamp, 'time_str': rrv.time_str})
-        return jsonify(l_js_msg)
+            l_js_msg.append({'value': rrv.value, 'timestamp': rrv.timestamp})
+        return jsonify(items=l_js_msg)
     else:
         return '-1', 400
 
@@ -96,7 +97,7 @@ def get_all():
         t = RRD_redis(t_name).get(size=1)[0]
         d_list[t_name] = {'value': t.value, 'update_str': t.time_str}
     # return json msg or error
-    return jsonify(d_list)
+    return jsonify(items=d_list)
 
 
 @app.route("/api/get.csv")

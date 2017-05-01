@@ -8,6 +8,8 @@
     <script type="text/javascript" src="/static/js/Chart.min.js"></script>
     <script type="text/javascript">
     function build_chart(size) {
+	// limit size to 255 items
+	if (size > 256 || size <= 0) size = 256;
         // load data from json
         $.ajax({
             url  : "/api/get.json",
@@ -17,7 +19,7 @@
         }).done(function (results) {
             var labels = [], data=[];
             // Split timestamp and data into separate arrays
-            results.forEach(function(packet) {
+            results["items"].forEach(function(packet) {
                 labels.push(new Date(packet.timestamp*1000));
                 data.push(parseFloat(packet.value));
             });
@@ -77,10 +79,10 @@
         </td>
     </tr>
     <tr>
-        <td align="center"><button onclick="build_chart(360)">360 samples</button></td>
-        <td align="center"><button onclick="build_chart(720)">720 samples</button></td>
-        <td align="center"><button onclick="build_chart(1440)">1440 samples</button></td>
-        <td align="center"><button onclick="build_chart(0)">full samples</button></td>
+        <td align="center"><button onclick="build_chart(32)">32 samples</button></td>
+        <td align="center"><button onclick="build_chart(64)">64 samples</button></td>
+        <td align="center"><button onclick="build_chart(128)">128 samples</button></td>
+        <td align="center"><button onclick="build_chart(256)">256 samples</button></td>
     </tr>
 </table>
 </body>

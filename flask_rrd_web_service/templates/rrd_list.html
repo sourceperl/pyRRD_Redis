@@ -15,7 +15,7 @@
                 type: "GET",
                 url: "/api/get_all.json",
                 success: function( result ) {
-                    $.each(result, function(i, val) {
+                    $.each(result["items"], function(i, val) {
                         $("#tag_value_" + i).html(val.value.toFixed(2));
                         $("#tag_update_" + i).html(val.update_str);
                     });
@@ -43,7 +43,7 @@
     <td align="center">{{ tag }}</td>
     <td align="center"><p id="tag_value_{{ tag }}"></p></td>
     <td align="center"><p id="tag_update_{{ tag }}"></p></td>
-    <td align="center"><a href="/view/chart_js?tag={{ tag }}" target="_blank"><img src="/static/img/gnome-monitor.svg"></a></td>
+    <td align="center"><a href="/view/chart_png?tag={{ tag }}" target="_blank"><img src="/static/img/gnome-monitor.svg"></a></td>
     <td align="center"><a href="/api/get.csv?tag={{ tag }}" target="_blank"><img src="/static/img/gnome-csv.svg"></a></td>
     <td align="center"><a href="/api/get_last.json?tag={{ tag }}" target="_blank"><img src="/static/img/gnome-find.svg"></a></td>
 </tr>
