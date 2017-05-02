@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <title>RRD chart viewer</title>
@@ -7,73 +7,80 @@
     <script type="text/javascript" src="/static/js/moment.min.js"></script>
     <script type="text/javascript" src="/static/js/Chart.min.js"></script>
     <script type="text/javascript">
-    function build_chart(size) {
-	    // limit size to 256 items
-	    if (size > 256 || size <= 0) size = 256;
+    // some global vars
+    var myLiveChart;
+    var myChartSize = 32;
+    // init graph
+    function init_chart() {
+        myLiveChart = new Chart($("#myChart"), {
+            type: "line",
+            data: {
+                labels : [],
+                datasets : [{
+                    label                 : '(n/a)',
+                    data                  : [],
+                    backgroundColor       : 'rgba(102, 255, 153, 0.2)'
+                }]
+            },
+            options: {
+                scales: {
+                    xAxes: [{
+                        type: 'time',
+                        time: {
+                            displayFormats: {
+                                millisecond: 'ss.SSS[s]',
+                                second: 'HH:mm:ss',
+                                minute: 'HH:mm',
+                                hour:   'DD HH',
+                                day:    'MM-DD',
+                                week:   'MM-DD',
+                                month:  'YYYY-MM',
+                                year:   'YYYY'
+                            }
+                        }
+                    }]
+                }
+            }
+        });
+        // launch auto-update of this chart
+        chart_updater();
+    }
+    // periodic chart_updater
+    function chart_updater() {
         // load data from json
         $.ajax({
             url  : "/api/get.json",
             type : "GET",
-            data : "tag={{ tag }}&size=" + size + "&_nocache=" + new Date().getTime(),
+            data : "tag={{ tag }}&size=" + myChartSize + "&_nocache=" + new Date().getTime(),
             dataType: "json"
         }).done(function (results) {
             var labels = [], data=[];
             // Split timestamp and data into separate arrays
-            results["items"].forEach(function(packet) {
-                labels.push(new Date(packet.timestamp*1000));
-                data.push(parseFloat(packet.value));
+            results["items"].forEach(function(item) {
+                labels.push(new Date(item.timestamp*1000));
+                data.push(parseFloat(item.value));
             });
             // Create the chart.js data structure using labels and data
-            var tempData = {
-                labels : labels,
-                datasets : [{
-                    label                 : 'RRD {{ tag }} value',
-                    data                  : data,
-                    backgroundColor       : 'rgba(102, 255, 153, 0.2)'
-                }]
-            };
-            // build graph
-            myLiveChart = new Chart($("#myChart"), {
-                type: "line",
-                data: tempData,
-                options: {
-                    scales: {
-                        xAxes: [{
-                            type: 'time',
-                            time: {
-                                displayFormats: {
-                                    millisecond: 'ss.SSS[s]',
-                                    second: 'HH:mm:ss',
-                                    minute: 'HH:mm',
-                                    hour:   'DD HH',
-                                    day:    'MM-DD',
-                                    week:   'MM-DD',
-                                    month:  'YYYY-MM',
-                                    year:   'YYYY'
-                                }
-                            }
-                        }]
-                    }
-                }
-            });
+            myLiveChart.data.labels = labels;
+            myLiveChart.data.datasets[0].data = data;
+            myLiveChart.data.datasets[0].label = 'Tag {{ tag }}';
+            // update sample number indicator
+            $("#mySampleNb").html("(" + myChartSize + " samples)");
+            // update chart
+            myLiveChart.update();
+        }).always(function() {
+            // refresh after 5000 ms if ajax success or failure
+            setTimeout(chart_updater, 5000);
         });
     }
-    // periodic worker
-    $(function periodic_worker() {
-        // do refresh here
-        // refresh after 5000 ms
-        setTimeout(periodic_worker, 5000);
-    });
-    // call on load
-    $(function init() {
-        build_chart(32);
-    });
+    // call on document ready
+    $(init_chart)
     </script>
 </head>
 <body>
 <table>
     <tr>
-        <td align="center" colspan="4">plot RRD {{ tag }} (with Charts.js)</td>
+        <td align="center" colspan="4">plot RRD with Charts.js<div id="mySampleNb"></div></td>
     </tr>
     <tr>
         <td align="center" colspan="4">
@@ -81,10 +88,10 @@
         </td>
     </tr>
     <tr>
-        <td align="center"><button onclick="build_chart(32)">32 samples</button></td>
-        <td align="center"><button onclick="build_chart(64)">64 samples</button></td>
-        <td align="center"><button onclick="build_chart(128)">128 samples</button></td>
-        <td align="center"><button onclick="build_chart(256)">256 samples</button></td>
+        <td align="center"><button onclick="myChartSize = 32;">32 samples</button></td>
+        <td align="center"><button onclick="myChartSize = 64;">64 samples</button></td>
+        <td align="center"><button onclick="myChartSize = 128;">128 samples</button></td>
+        <td align="center"><button onclick="myChartSize = 256;">256 samples</button></td>
     </tr>
 </table>
 </body>

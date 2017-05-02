@@ -60,9 +60,14 @@ def plot(tag_name):
 
 @app.route('/api/get.json')
 def get():
-    # URL params (limit request to 512 items max)
+    # URL params
     tag_name = request.args.get('tag', '', type=str)
-    size = min(512, request.args.get('size', 512, type=int))
+    size = request.args.get('size', 512, type=int)
+    # tag_name must be set
+    if not tag_name:
+        return jsonify(status='error', message='tag arg must be set'), 400
+    # limit request to 1 to 512 item(s)
+    size = max(1, min(size, 512))
     # build json msg
     l_rrv = RRD_redis(tag_name).get(size=size)
     # return json msg or error
@@ -70,22 +75,25 @@ def get():
         l_js_msg = []
         for rrv in l_rrv:
             l_js_msg.append({'value': rrv.value, 'timestamp': rrv.timestamp})
-        return jsonify(items=l_js_msg)
+        return jsonify(status='success', items=l_js_msg)
     else:
-        return '-1', 400
+        return jsonify(status='error', message='tag not exist'), 400
 
 
 @app.route('/api/get_last.json')
 def get_last():
     # URL params
     tag_name = request.args.get('tag', '', type=str)
+    # tag_name must be set
+    if not tag_name:
+        return jsonify(status='error', message='tag arg must be set'), 400
     # build json msg
     v = RRD_redis(tag_name).get(size=1)
     # return json msg or error
     if len(v) == 1:
-        return jsonify(value=v[0].value, timestamp=v[0].timestamp, time_str=v[0].time_str)
+        return jsonify(status='success', value=v[0].value, timestamp=v[0].timestamp, time_str=v[0].time_str)
     else:
-        return '-1', 400
+        return jsonify(status='error', message='tag not exist'), 400
 
 
 @app.route('/api/get_all.json')
@@ -96,7 +104,7 @@ def get_all():
         t = RRD_redis(t_name).get(size=1)[0]
         d_list[t_name] = {'value': t.value, 'update_str': t.time_str}
     # return json msg or error
-    return jsonify(items=d_list)
+    return jsonify(status='success', items=d_list)
 
 
 @app.route('/api/get.csv')
