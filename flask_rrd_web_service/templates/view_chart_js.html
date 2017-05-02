@@ -56,18 +56,19 @@
             data     : "tag={{ tag }}&size=" + myChartSize + "&_nocache=" + new Date().getTime(),
             dataType : "json"
         }).done(function(results) {
-            var labels = [], data=[];
-            // Split timestamp and data into separate arrays
+            var labels = [], data=[], c_samples = 0;
+            // split timestamp and data into separate arrays
             results["items"].forEach(function(item) {
                 labels.push(new Date(item.timestamp*1000));
                 data.push(parseFloat(item.value));
+                c_samples++;
             });
-            // Create the chart.js data structure using labels and data
+            // create the chart.js data structure using labels and data
             myLiveChart.data.labels = labels;
             myLiveChart.data.datasets[0].data = data;
             myLiveChart.data.datasets[0].label = 'Tag {{ tag }}';
             // update sample number indicator
-            $("#mySampleNb").html("(" + myChartSize + " samples)");
+            $("#mySampleNb").html("(" + c_samples + " samples)");
             // update chart
             myLiveChart.update();
         });
@@ -84,10 +85,10 @@
 <body>
 <table>
     <tr>
-        <td align="center" colspan="4">plot RRD with Charts.js<div id="mySampleNb"></div></td>
+        <td align="center" colspan="6">plot RRD with Charts.js<div id="mySampleNb"></div></td>
     </tr>
     <tr>
-        <td align="center" colspan="4">
+        <td align="center" colspan="6">
             <canvas style="width:800px; height:400px;" id="myChart"></canvas>
         </td>
     </tr>
@@ -96,6 +97,8 @@
         <td align="center"><button onclick="set_chart_size(64);">64 samples</button></td>
         <td align="center"><button onclick="set_chart_size(128);">128 samples</button></td>
         <td align="center"><button onclick="set_chart_size(256);">256 samples</button></td>
+        <td align="center"><button onclick="set_chart_size(512);">512 samples</button></td>
+        <td align="center"><button onclick="set_chart_size(1024);">1024 samples</button></td>
     </tr>
 </table>
 </body>

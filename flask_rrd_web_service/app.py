@@ -66,8 +66,8 @@ def get():
     # tag_name must be set
     if not tag_name:
         return jsonify(status='error', message='tag arg must be set'), 400
-    # limit request to 1 to 512 item(s)
-    size = max(1, min(size, 512))
+    # limit request to 1 to 1024 item(s)
+    size = max(1, min(size, 1024))
     # build json msg
     l_rrv = RRD_redis(tag_name).get(size=size)
     # return json msg or error
