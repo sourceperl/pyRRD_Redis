@@ -42,18 +42,20 @@
                 }
             }
         });
-        // launch auto-update of this chart
-        chart_updater();
+        // launch auto-update of this chart now and every 5000ms
+        chart_updater()
+        setInterval(chart_updater, 5000)
     }
     // periodic chart_updater
     function chart_updater() {
         // load data from json
         $.ajax({
-            url  : "/api/get.json",
-            type : "GET",
-            data : "tag={{ tag }}&size=" + myChartSize + "&_nocache=" + new Date().getTime(),
-            dataType: "json"
-        }).done(function (results) {
+            url      : "/api/get.json",
+            timeout  : 3000,
+            type     : "GET",
+            data     : "tag={{ tag }}&size=" + myChartSize + "&_nocache=" + new Date().getTime(),
+            dataType : "json"
+        }).done(function(results) {
             var labels = [], data=[];
             // Split timestamp and data into separate arrays
             results["items"].forEach(function(item) {
@@ -68,10 +70,12 @@
             $("#mySampleNb").html("(" + myChartSize + " samples)");
             // update chart
             myLiveChart.update();
-        }).always(function() {
-            // refresh after 5000 ms if ajax success or failure
-            setTimeout(chart_updater, 5000);
         });
+    }
+    // change chart size
+    function set_chart_size(size) {
+        myChartSize = size;
+        chart_updater();
     }
     // call on document ready
     $(init_chart)
@@ -88,10 +92,10 @@
         </td>
     </tr>
     <tr>
-        <td align="center"><button onclick="myChartSize = 32;">32 samples</button></td>
-        <td align="center"><button onclick="myChartSize = 64;">64 samples</button></td>
-        <td align="center"><button onclick="myChartSize = 128;">128 samples</button></td>
-        <td align="center"><button onclick="myChartSize = 256;">256 samples</button></td>
+        <td align="center"><button onclick="set_chart_size(32);">32 samples</button></td>
+        <td align="center"><button onclick="set_chart_size(64);">64 samples</button></td>
+        <td align="center"><button onclick="set_chart_size(128);">128 samples</button></td>
+        <td align="center"><button onclick="set_chart_size(256);">256 samples</button></td>
     </tr>
 </table>
 </body>
