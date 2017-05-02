@@ -35,6 +35,7 @@
     <th>Value</th>
     <th>Update</th>
     <th>Graph</th>
+    <th>Live</th>
     <th>CSV</th>
     <th>Json</th>
 </tr>
@@ -44,6 +45,7 @@
     <td align="center"><p id="tag_value_{{ tag }}"></p></td>
     <td align="center"><p id="tag_update_{{ tag }}"></p></td>
     <td align="center"><a href="/view/chart_png?tag={{ tag }}" target="_blank"><img src="/static/img/gnome-monitor.svg"></a></td>
+    <td align="center"><a href="/view/chart_js?tag={{ tag }}" target="_blank"><img src="/static/img/gnome-live.svg"></a></td>
     <td align="center"><a href="/api/get.csv?tag={{ tag }}" target="_blank"><img src="/static/img/gnome-csv.svg"></a></td>
     <td align="center"><a href="/api/get_last.json?tag={{ tag }}" target="_blank"><img src="/static/img/gnome-find.svg"></a></td>
 </tr>
