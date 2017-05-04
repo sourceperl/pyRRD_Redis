@@ -102,19 +102,8 @@ class RRD_redis(object):
                 try:
                     # watch no change occur on this RRD during add() update
                     pipe.watch(self.db_name)
-                    # if at_time is not defined, just insert new record and remove older record
-                    if at_time is None or len(self) == 0:
-                        # insert at first position
-                        pipe.lpush(self.db_name, RRD_value(value=value, timestamp=at_time).dump())
-                    else:
-                        # try to insert new record before the closest record
-                        for rrv in self.get():
-                            if at_time > rrv.timestamp:
-                                pipe.linsert(self.db_name, 'BEFORE', rrv.dump(),
-                                             RRD_value(value=value, timestamp=at_time).dump())
-                                break
-                        else:
-                            pipe.rpush(self.db_name, RRD_value(value=value, timestamp=at_time).dump())
+                    # insert at first position
+                    pipe.lpush(self.db_name, RRD_value(value=value, timestamp=at_time).dump())
                     # ensure DB size keep <= max size
                     pipe.ltrim(self.db_name, 0, self.size - 1)
                     pipe.execute()
@@ -132,7 +121,7 @@ class RRD_redis(object):
         :type value: float
         """
         # read last insert time
-        last_rrv = self.get(start=0, size=1)
+        last_rrv = self.get(size=1, from_last=0)
         if last_rrv:
             ins_time = last_rrv[0].timestamp
         else:
@@ -152,14 +141,14 @@ class RRD_redis(object):
                 self.add(value)
             self._c_val.clear()
 
-    def get(self, start=0, size=0):
+    def get(self, size=0, from_last=0):
         """
         Return a list of RRD_value
 
-        :param start: RRD start position (0 for the last inserted value)
-        :type start: int
         :param size: number of RRD value to retrieve (default is all records)
         :type size: int
+        :param from_last: RRD start position (0 for the last inserted value)
+        :type from_last: int
         :return: list of RRD_value
         :rtype: list
         """
@@ -168,7 +157,7 @@ class RRD_redis(object):
             size = self._r.llen(self.db_name)
         # format and return array of RRD_value
         ret_l = []
-        for s in self._r.lrange(self.db_name, start, start + size - 1):
+        for s in self._r.lrange(self.db_name, from_last, from_last + size - 1):
             ret_l.append(RRD_value(from_str=s))
         return ret_l
 
