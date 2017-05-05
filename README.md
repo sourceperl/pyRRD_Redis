@@ -3,7 +3,6 @@
 ### Setup
 
     sudo apt-get install -y redis-server
-    sudo apt-get install -y python-redis python3-redis
     sudo apt-get install -y python3-matplotlib
     sudo apt-get install -y python3-flask
     sudo apt-get install -y gnuplot
